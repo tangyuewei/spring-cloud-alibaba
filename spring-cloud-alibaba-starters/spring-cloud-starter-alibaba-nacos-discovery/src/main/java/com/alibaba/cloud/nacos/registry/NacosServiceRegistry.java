@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package com.alibaba.cloud.nacos.registry;
 import java.util.List;
 import java.util.Properties;
 
+import com.alibaba.cloud.commons.lang.StringUtils;
 import com.alibaba.cloud.nacos.NacosDiscoveryProperties;
 import com.alibaba.cloud.nacos.NacosServiceManager;
 import com.alibaba.nacos.api.exception.NacosException;
@@ -27,10 +28,8 @@ import com.alibaba.nacos.api.naming.pojo.Instance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.cloud.client.serviceregistry.ServiceRegistry;
-import org.springframework.util.StringUtils;
 
 import static org.springframework.util.ReflectionUtils.rethrowRuntimeException;
 
@@ -38,6 +37,7 @@ import static org.springframework.util.ReflectionUtils.rethrowRuntimeException;
  * @author xiaojing
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @author <a href="mailto:78552423@qq.com">eshun</a>
+ * @author JAY
  */
 public class NacosServiceRegistry implements ServiceRegistry<Registration> {
 
@@ -49,11 +49,12 @@ public class NacosServiceRegistry implements ServiceRegistry<Registration> {
 
 	private final NacosDiscoveryProperties nacosDiscoveryProperties;
 
-	@Autowired
-	private NacosServiceManager nacosServiceManager;
+	private final NacosServiceManager nacosServiceManager;
 
-	public NacosServiceRegistry(NacosDiscoveryProperties nacosDiscoveryProperties) {
+	public NacosServiceRegistry(NacosServiceManager nacosServiceManager,
+			NacosDiscoveryProperties nacosDiscoveryProperties) {
 		this.nacosDiscoveryProperties = nacosDiscoveryProperties;
+		this.nacosServiceManager = nacosServiceManager;
 	}
 
 	@Override
@@ -166,7 +167,7 @@ public class NacosServiceRegistry implements ServiceRegistry<Registration> {
 			for (Instance instance : instances) {
 				if (instance.getIp().equalsIgnoreCase(nacosDiscoveryProperties.getIp())
 						&& instance.getPort() == nacosDiscoveryProperties.getPort()) {
-					return instance.isEnabled() ? "UP" : "DOWN";
+					return instance.isEnabled() ? STATUS_UP : STATUS_DOWN;
 				}
 			}
 		}
@@ -189,8 +190,7 @@ public class NacosServiceRegistry implements ServiceRegistry<Registration> {
 	}
 
 	private NamingService namingService() {
-		return nacosServiceManager
-				.getNamingService(nacosDiscoveryProperties.getNacosProperties());
+		return nacosServiceManager.getNamingService();
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,8 @@ import java.util.Collections;
 
 import com.alibaba.csp.sentinel.slots.block.RuleConstant;
 import com.alibaba.csp.sentinel.slots.block.degrade.DegradeRule;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -31,38 +30,34 @@ import reactor.test.StepVerifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.cloud.client.circuitbreaker.Customizer;
 import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreakerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import static com.alibaba.cloud.circuitbreaker.sentinel.ReactiveSentinelCircuitBreakerIntegrationTest.Application;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 /**
  * @author Ryan Baxter
  */
-@RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = RANDOM_PORT,
-		classes = ReactiveSentinelCircuitBreakerIntegrationTest.Application.class,
-		properties = { "spring.cloud.discovery.client.health-indicator.enabled=false" })
-@DirtiesContext
+@SpringBootTest(webEnvironment = RANDOM_PORT, classes = Application.class, properties = {
+		"spring.cloud.discovery.client.health-indicator.enabled=false" })
 public class ReactiveSentinelCircuitBreakerIntegrationTest {
 
 	@LocalServerPort
 	private int port = 0;
 
 	@Autowired
-	private ReactiveSentinelCircuitBreakerIntegrationTest.Application.DemoControllerService service;
+	private Application.DemoControllerService service;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		service.setPort(port);
 	}
@@ -79,8 +74,9 @@ public class ReactiveSentinelCircuitBreakerIntegrationTest {
 		// Then in the next 5s, the fallback method should be called.
 		for (int i = 0; i < 5; i++) {
 			StepVerifier.create(service.slow()).expectNext("fallback").verifyComplete();
-			Thread.sleep(1000);
+			Thread.sleep(900);
 		}
+		Thread.sleep(500);
 
 		// Half-open recovery (will re-open the circuit breaker).
 		StepVerifier.create(service.slow()).expectNext("slow").verifyComplete();
@@ -96,8 +92,9 @@ public class ReactiveSentinelCircuitBreakerIntegrationTest {
 		for (int i = 0; i < 5; i++) {
 			StepVerifier.create(service.slowFlux()).expectNext("flux_fallback")
 					.verifyComplete();
-			Thread.sleep(1000);
+			Thread.sleep(900);
 		}
+		Thread.sleep(500);
 
 		// Half-open recovery (will re-open the circuit breaker).
 		StepVerifier.create(service.slowFlux()).expectNext("slowflux").verifyComplete();

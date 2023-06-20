@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -127,17 +127,22 @@ public class DataSourcePropertiesConfiguration {
 
 	@JsonIgnore
 	public List<String> getValidField() {
-		return Arrays.stream(this.getClass().getDeclaredFields()).map(field -> {
-			try {
-				if (!ObjectUtils.isEmpty(field.get(this))) {
-					return field.getName();
-				}
-			}
-			catch (IllegalAccessException e) {
-				// won't happen
-			}
-			return null;
-		}).filter(Objects::nonNull).collect(Collectors.toList());
+		return Arrays
+				.stream(this.getClass().getDeclaredFields())
+				.filter(field -> !field.isSynthetic())
+				.map(field -> {
+					try {
+						if (!ObjectUtils.isEmpty(field.get(this))) {
+							return field.getName();
+						}
+					}
+					catch (IllegalAccessException e) {
+						// won't happen
+					}
+					return null;
+				})
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList());
 	}
 
 	@JsonIgnore

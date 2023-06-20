@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ public class SentinelClientHttpResponse extends AbstractClientHttpResponse {
 	public HttpHeaders getHeaders() {
 		Map<String, List<String>> headers = new HashMap<>();
 		headers.put(HttpHeaders.CONTENT_TYPE,
-				Arrays.asList(MediaType.APPLICATION_JSON_UTF8_VALUE));
+				Arrays.asList(MediaType.APPLICATION_JSON_VALUE));
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.putAll(headers);
 		return httpHeaders;

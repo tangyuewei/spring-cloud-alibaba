@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,11 +27,11 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.annotation.PostConstruct;
-
+import com.alibaba.cloud.commons.lang.StringUtils;
 import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.spring.util.PropertySourcesUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +40,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.DeprecatedConfigurationProperty;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
-import org.springframework.util.StringUtils;
 
 import static com.alibaba.nacos.api.PropertyKeyConst.ACCESS_KEY;
 import static com.alibaba.nacos.api.PropertyKeyConst.CLUSTER_NAME;
@@ -84,6 +83,11 @@ public class NacosConfigProperties {
 	 */
 	public static final String SEPARATOR = "[,]";
 
+	/**
+	 * Nacos default namespace .
+	 */
+	public static final String DEFAULT_NAMESPACE = "public";
+
 	private static final Pattern PATTERN = Pattern.compile("-(\\w)");
 
 	private static final Logger log = LoggerFactory
@@ -99,12 +103,15 @@ public class NacosConfigProperties {
 	}
 
 	private void overrideFromEnv() {
+		if (environment == null) {
+			return;
+		}
 		if (StringUtils.isEmpty(this.getServerAddr())) {
 			String serverAddr = environment
 					.resolvePlaceholders("${spring.cloud.nacos.config.server-addr:}");
 			if (StringUtils.isEmpty(serverAddr)) {
 				serverAddr = environment.resolvePlaceholders(
-						"${spring.cloud.nacos.server-addr:localhost:8848}");
+						"${spring.cloud.nacos.server-addr:127.0.0.1:8848}");
 			}
 			this.setServerAddr(serverAddr);
 		}
@@ -204,7 +211,7 @@ public class NacosConfigProperties {
 	private String secretKey;
 
 	/**
-	 * access key for namespace.
+	 * role name for aliyun ram.
 	 */
 	private String ramRoleName;
 
@@ -439,19 +446,19 @@ public class NacosConfigProperties {
 	 * @return string
 	 */
 	@Deprecated
-	@DeprecatedConfigurationProperty(
-			reason = "replaced to NacosConfigProperties#sharedConfigs and not use it at the same time.",
-			replacement = PREFIX + ".shared-configs[x]")
+	@DeprecatedConfigurationProperty(reason = "replaced to NacosConfigProperties#sharedConfigs and not use it at the same time.", replacement = PREFIX
+			+ ".shared-configs[x]")
 	public String getSharedDataids() {
-		return null == getSharedConfigs() ? null : getSharedConfigs().stream()
-				.map(Config::getDataId).collect(Collectors.joining(COMMAS));
+		return null == getSharedConfigs() ? null
+				: getSharedConfigs().stream().map(Config::getDataId)
+						.collect(Collectors.joining(COMMAS));
 	}
 
 	/**
 	 * recommend to use {@link NacosConfigProperties#sharedConfigs} and not use it at the
 	 * same time .
 	 * @param sharedDataids the dataids for configurable multiple shared configurations ,
-	 * multiple separated by commas .
+	 *     multiple separated by commas .
 	 */
 	@Deprecated
 	public void setSharedDataids(String sharedDataids) {
@@ -469,9 +476,8 @@ public class NacosConfigProperties {
 	 * @return string
 	 */
 	@Deprecated
-	@DeprecatedConfigurationProperty(
-			reason = "replaced to NacosConfigProperties#sharedConfigs and not use it at the same time.",
-			replacement = PREFIX + ".shared-configs[x].refresh")
+	@DeprecatedConfigurationProperty(reason = "replaced to NacosConfigProperties#sharedConfigs and not use it at the same time.", replacement = PREFIX
+			+ ".shared-configs[x].refresh")
 	public String getRefreshableDataids() {
 		return null == getSharedConfigs() ? null
 				: getSharedConfigs().stream().filter(Config::isRefresh)
@@ -517,9 +523,8 @@ public class NacosConfigProperties {
 	 * @return extensionConfigs
 	 */
 	@Deprecated
-	@DeprecatedConfigurationProperty(
-			reason = "replaced to NacosConfigProperties#extensionConfigs and not use it at the same time .",
-			replacement = PREFIX + ".extension-configs[x]")
+	@DeprecatedConfigurationProperty(reason = "replaced to NacosConfigProperties#extensionConfigs and not use it at the same time .", replacement = PREFIX
+			+ ".extension-configs[x]")
 	public List<Config> getExtConfig() {
 		return this.getExtensionConfigs();
 	}
@@ -559,7 +564,7 @@ public class NacosConfigProperties {
 		properties.put(USERNAME, Objects.toString(this.username, ""));
 		properties.put(PASSWORD, Objects.toString(this.password, ""));
 		properties.put(ENCODE, Objects.toString(this.encode, ""));
-		properties.put(NAMESPACE, Objects.toString(this.namespace, ""));
+		properties.put(NAMESPACE, this.resolveNamespace());
 		properties.put(ACCESS_KEY, Objects.toString(this.accessKey, ""));
 		properties.put(SECRET_KEY, Objects.toString(this.secretKey, ""));
 		properties.put(RAM_ROLE_NAME, Objects.toString(this.ramRoleName, ""));
@@ -575,7 +580,8 @@ public class NacosConfigProperties {
 			int index = endpoint.indexOf(":");
 			properties.put(ENDPOINT, endpoint.substring(0, index));
 			properties.put(ENDPOINT_PORT, endpoint.substring(index + 1));
-		} else {
+		}
+		else {
 			properties.put(ENDPOINT, endpoint);
 		}
 
@@ -583,7 +589,25 @@ public class NacosConfigProperties {
 		return properties;
 	}
 
+	/**
+	 * refer
+	 * https://github.com/alibaba/spring-cloud-alibaba/issues/2872
+	 * https://github.com/alibaba/spring-cloud-alibaba/issues/2869 .
+	 */
+	private String resolveNamespace() {
+		if (DEFAULT_NAMESPACE.equals(this.namespace)) {
+			log.info("set nacos config namespace 'public' to ''");
+			return "";
+		}
+		else {
+			return Objects.toString(this.namespace, "");
+		}
+	}
+
 	private void enrichNacosConfigProperties(Properties nacosConfigProperties) {
+		if (environment == null) {
+			return;
+		}
 		Map<String, Object> properties = PropertySourcesUtils
 				.getSubProperties((ConfigurableEnvironment) environment, PREFIX);
 		properties.forEach((k, v) -> nacosConfigProperties.putIfAbsent(resolveKey(k),
@@ -611,11 +635,10 @@ public class NacosConfigProperties {
 				+ ", enableRemoteSyncConfig=" + enableRemoteSyncConfig + ", endpoint='"
 				+ endpoint + '\'' + ", namespace='" + namespace + '\'' + ", accessKey='"
 				+ accessKey + '\'' + ", secretKey='" + secretKey + '\''
-				+ ", ramRoleName='" + ramRoleName + '\''
-				+ ", contextPath='" + contextPath + '\'' + ", clusterName='" + clusterName
-				+ '\'' + ", name='" + name + '\'' + '\'' + ", shares=" + sharedConfigs
-				+ ", extensions=" + extensionConfigs + ", refreshEnabled="
-				+ refreshEnabled + '}';
+				+ ", ramRoleName='" + ramRoleName + '\'' + ", contextPath='" + contextPath
+				+ '\'' + ", clusterName='" + clusterName + '\'' + ", name='" + name + '\''
+				+ '\'' + ", shares=" + sharedConfigs + ", extensions=" + extensionConfigs
+				+ ", refreshEnabled=" + refreshEnabled + '}';
 	}
 
 	public static class Config {

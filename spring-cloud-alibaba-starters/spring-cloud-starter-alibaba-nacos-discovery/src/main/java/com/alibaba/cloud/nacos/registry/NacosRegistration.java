@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,11 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
 
 import com.alibaba.cloud.nacos.NacosDiscoveryProperties;
 import com.alibaba.nacos.api.naming.PreservedMetadataKeys;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.ManagementServerPortUtils;
@@ -35,8 +35,9 @@ import org.springframework.util.StringUtils;
 
 /**
  * @author xiaojing
+ * @author changjin wei(魏昌进)
  */
-public class NacosRegistration implements Registration, ServiceInstance {
+public class NacosRegistration implements Registration {
 
 	/**
 	 * The metadata key of management port.
@@ -79,7 +80,7 @@ public class NacosRegistration implements Registration, ServiceInstance {
 		Environment env = context.getEnvironment();
 
 		String endpointBasePath = env.getProperty(MANAGEMENT_ENDPOINT_BASE_PATH);
-		if (!StringUtils.isEmpty(endpointBasePath)) {
+		if (StringUtils.hasLength(endpointBasePath)) {
 			metadata.put(MANAGEMENT_ENDPOINT_BASE_PATH, endpointBasePath);
 		}
 
@@ -89,10 +90,10 @@ public class NacosRegistration implements Registration, ServiceInstance {
 			String contextPath = env
 					.getProperty("management.server.servlet.context-path");
 			String address = env.getProperty("management.server.address");
-			if (!StringUtils.isEmpty(contextPath)) {
+			if (StringUtils.hasLength(contextPath)) {
 				metadata.put(MANAGEMENT_CONTEXT_PATH, contextPath);
 			}
-			if (!StringUtils.isEmpty(address)) {
+			if (StringUtils.hasLength(address)) {
 				metadata.put(MANAGEMENT_ADDRESS, address);
 			}
 		}
@@ -109,15 +110,14 @@ public class NacosRegistration implements Registration, ServiceInstance {
 			metadata.put(PreservedMetadataKeys.IP_DELETE_TIMEOUT,
 					nacosDiscoveryProperties.getIpDeleteTimeout().toString());
 		}
-		customize(registrationCustomizers, this);
+		customize(registrationCustomizers);
 	}
 
-	private static void customize(
-			List<NacosRegistrationCustomizer> registrationCustomizers,
-			NacosRegistration registration) {
+	protected void customize(
+			List<NacosRegistrationCustomizer> registrationCustomizers) {
 		if (registrationCustomizers != null) {
 			for (NacosRegistrationCustomizer customizer : registrationCustomizers) {
-				customizer.customize(registration);
+				customizer.customize(this);
 			}
 		}
 	}

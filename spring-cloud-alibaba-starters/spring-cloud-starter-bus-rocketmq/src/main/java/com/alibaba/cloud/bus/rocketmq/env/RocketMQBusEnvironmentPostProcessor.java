@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 
-import static org.springframework.cloud.bus.SpringCloudBusClient.INPUT;
+import static org.springframework.cloud.bus.BusConstants.INPUT;
 
 /**
  * The lowest precedence {@link EnvironmentPostProcessor} configures default RocketMQ Bus
@@ -92,8 +92,8 @@ public class RocketMQBusEnvironmentPostProcessor
 		MapPropertySource target = null;
 		if (propertySources.contains(PROPERTY_SOURCE_NAME)) {
 			PropertySource<?> source = propertySources.get(PROPERTY_SOURCE_NAME);
-			if (source instanceof MapPropertySource) {
-				target = (MapPropertySource) source;
+			if (source instanceof MapPropertySource mapPropertySource) {
+				target = mapPropertySource;
 				for (String key : map.keySet()) {
 					if (!target.containsProperty(key)) {
 						target.getSource().put(key, map.get(key));

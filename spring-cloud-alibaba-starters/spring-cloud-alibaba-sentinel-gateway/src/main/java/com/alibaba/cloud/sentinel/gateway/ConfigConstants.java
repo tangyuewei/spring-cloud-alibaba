@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package com.alibaba.cloud.sentinel.gateway;
 
 import com.alibaba.cloud.sentinel.gateway.scg.SentinelGatewayProperties;
-import com.alibaba.cloud.sentinel.gateway.zuul.SentinelZuulProperties;
 
 /**
  * @author <a href="mailto:fangjian0423@gmail.com">Jim</a>
@@ -25,19 +24,9 @@ import com.alibaba.cloud.sentinel.gateway.zuul.SentinelZuulProperties;
 public final class ConfigConstants {
 
 	/**
-	 * Netflix Zuul type.
-	 */
-	public static final String APP_TYPE_ZUUL_GATEWAY = "12";
-
-	/**
 	 * Spring Cloud Gateway type.
 	 */
 	public static final String APP_TYPE_SCG_GATEWAY = "11";
-
-	/**
-	 * ConfigurationProperties for {@link SentinelZuulProperties}.
-	 */
-	public static final String ZUUL_PREFIX = "spring.cloud.sentinel.zuul";
 
 	/**
 	 * ConfigurationProperties for {@link SentinelGatewayProperties}.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,15 @@
 
 package com.alibaba.cloud.nacos.discovery;
 
+import com.alibaba.cloud.nacos.NacosServiceAutoConfiguration;
+import com.alibaba.cloud.nacos.registry.NacosServiceRegistryAutoConfiguration;
+import com.alibaba.cloud.nacos.util.UtilIPv6AutoConfiguration;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationConfiguration;
 import org.springframework.cloud.commons.util.UtilAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.TaskScheduler;
@@ -34,7 +38,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class NacosDiscoveryClientConfigurationTest {
 
 	private ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-			.withConfiguration(AutoConfigurations.of(UtilAutoConfiguration.class,
+			.withConfiguration(AutoConfigurations.of(
+					AutoServiceRegistrationConfiguration.class,
+					NacosServiceRegistryAutoConfiguration.class,
+					UtilAutoConfiguration.class,
+					UtilIPv6AutoConfiguration.class,
+					NacosServiceAutoConfiguration.class,
 					NacosDiscoveryAutoConfiguration.class,
 					NacosDiscoveryClientConfiguration.class, this.getClass()));
 
@@ -47,7 +56,8 @@ public class NacosDiscoveryClientConfigurationTest {
 	public void testDefaultInitialization() {
 		contextRunner.run(context -> {
 			assertThat(context).hasSingleBean(DiscoveryClient.class);
-			assertThat(context).hasSingleBean(NacosWatch.class);
+			// NacosWatch is no longer enabled by default
+			assertThat(context).doesNotHaveBean(NacosWatch.class);
 		});
 	}
 
@@ -58,6 +68,12 @@ public class NacosDiscoveryClientConfigurationTest {
 					assertThat(context).doesNotHaveBean(DiscoveryClient.class);
 					assertThat(context).doesNotHaveBean(NacosWatch.class);
 				});
+	}
+
+	@Test
+	public void testNacosWatchEnabled() {
+		contextRunner.withPropertyValues("spring.cloud.nacos.discovery.watch.enabled=true")
+				.run(context -> assertThat(context).hasSingleBean(NacosWatch.class));
 	}
 
 }

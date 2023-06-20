@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,18 +25,19 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.alibaba.cloud.commons.lang.StringUtils;
+
 import org.springframework.boot.env.PropertySourceLoader;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.Resource;
-import org.springframework.util.StringUtils;
 
 /**
  * Nacos-specific loader, If need to support other methods of parsing,you need to do the
  * following steps:
  * <p>
- * 1.inherit {@link AbstractPropertySourceLoader} ;<br/>
+ * 1.inherit {@link AbstractPropertySourceLoader};<br>
  * 2. define the file{@code spring.factories} and append
- * {@code org.springframework.boot.env.PropertySourceLoader=..}; <br/>
+ * {@code org.springframework.boot.env.PropertySourceLoader=..};<br>
  * 3.the last step validate.
  * </p>
  * Notice the use of {@link NacosByteArrayResource} .
@@ -109,14 +110,12 @@ public abstract class AbstractPropertySourceLoader implements PropertySourceLoad
 			String fullKey = StringUtils.isEmpty(parentKey) ? key : key.startsWith("[")
 					? parentKey.concat(key) : parentKey.concat(DOT).concat(key);
 
-			if (value instanceof Map) {
-				Map<String, Object> map = (Map<String, Object>) value;
+			if (value instanceof Map map) {
 				flattenedMap(result, map, fullKey);
 				continue;
 			}
-			else if (value instanceof Collection) {
+			else if (value instanceof Collection collection) {
 				int count = 0;
-				Collection<Object> collection = (Collection<Object>) value;
 				for (Object object : collection) {
 					flattenedMap(result,
 							Collections.singletonMap("[" + (count++) + "]", object),

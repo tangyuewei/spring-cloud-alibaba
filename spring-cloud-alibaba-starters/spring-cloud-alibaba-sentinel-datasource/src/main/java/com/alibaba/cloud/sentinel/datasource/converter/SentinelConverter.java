@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
+import com.alibaba.cloud.commons.lang.StringUtils;
 import com.alibaba.csp.sentinel.datasource.Converter;
 import com.alibaba.csp.sentinel.slots.block.authority.AuthorityRule;
 import com.alibaba.csp.sentinel.slots.block.degrade.DegradeRule;
@@ -34,8 +35,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.springframework.util.StringUtils;
 
 /**
  * Convert sentinel rules for json or xml array Using strict mode to parse json or xml.
@@ -77,7 +76,7 @@ public abstract class SentinelConverter<T extends Object>
 		}
 
 		if (StringUtils.isEmpty(source)) {
-			log.warn("converter can not convert rules because source is empty");
+			log.info("converter can not convert rules because source is empty");
 			return ruleCollection;
 		}
 		try {
@@ -99,8 +98,8 @@ public abstract class SentinelConverter<T extends Object>
 			}
 		}
 		catch (Exception e) {
-			if (e instanceof RuntimeException) {
-				throw (RuntimeException) e;
+			if (e instanceof RuntimeException runtimeException) {
+				throw runtimeException;
 			}
 			else {
 				throw new RuntimeException("convert error: " + e.getMessage(), e);

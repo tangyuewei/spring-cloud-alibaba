@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,8 @@ import feign.Feign;
 import feign.InvocationHandlerFactory.MethodHandler;
 import feign.MethodMetadata;
 import feign.Target;
-import feign.hystrix.FallbackFactory;
+
+import org.springframework.cloud.openfeign.FallbackFactory;
 
 import static feign.Util.checkNotNull;
 
@@ -71,7 +72,8 @@ public class SentinelInvocationHandler implements InvocationHandler {
 		if ("equals".equals(method.getName())) {
 			try {
 				Object otherHandler = args.length > 0 && args[0] != null
-						? Proxy.getInvocationHandler(args[0]) : null;
+						? Proxy.getInvocationHandler(args[0])
+						: null;
 				return equals(otherHandler);
 			}
 			catch (IllegalArgumentException e) {
@@ -88,8 +90,7 @@ public class SentinelInvocationHandler implements InvocationHandler {
 		Object result;
 		MethodHandler methodHandler = this.dispatch.get(method);
 		// only handle by HardCodedTarget
-		if (target instanceof Target.HardCodedTarget) {
-			Target.HardCodedTarget hardCodedTarget = (Target.HardCodedTarget) target;
+		if (target instanceof Target.HardCodedTarget hardCodedTarget) {
 			MethodMetadata methodMetadata = SentinelContractHolder.METADATA_MAP
 					.get(hardCodedTarget.type().getName()
 							+ Feign.configKey(hardCodedTarget.type(), method));
@@ -149,9 +150,8 @@ public class SentinelInvocationHandler implements InvocationHandler {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof SentinelInvocationHandler) {
-			SentinelInvocationHandler other = (SentinelInvocationHandler) obj;
-			return target.equals(other.target);
+		if (obj instanceof SentinelInvocationHandler sentinelInvocationHandler) {
+			return target.equals(sentinelInvocationHandler.target);
 		}
 		return false;
 	}

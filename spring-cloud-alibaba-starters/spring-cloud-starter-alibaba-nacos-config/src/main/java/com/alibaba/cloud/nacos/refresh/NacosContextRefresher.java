@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ import org.springframework.context.ApplicationListener;
  *
  * @author juven.xuxb
  * @author pbting
+ * @author freeman
  */
 public class NacosContextRefresher
 		implements ApplicationListener<ApplicationReadyEvent>, ApplicationContextAware {
@@ -74,21 +75,6 @@ public class NacosContextRefresher
 		this.nacosRefreshHistory = refreshHistory;
 		this.configService = nacosConfigManager.getConfigService();
 		this.isRefreshEnabled = this.nacosConfigProperties.isRefreshEnabled();
-	}
-
-	/**
-	 * recommend to use
-	 * {@link NacosContextRefresher#NacosContextRefresher(NacosConfigManager, NacosRefreshHistory)}.
-	 * @param refreshProperties refreshProperties
-	 * @param refreshHistory refreshHistory
-	 * @param configService configService
-	 */
-	@Deprecated
-	public NacosContextRefresher(NacosRefreshProperties refreshProperties,
-			NacosRefreshHistory refreshHistory, ConfigService configService) {
-		this.isRefreshEnabled = refreshProperties.isEnabled();
-		this.nacosRefreshHistory = refreshHistory;
-		this.configService = configService;
 	}
 
 	@Override
@@ -129,7 +115,6 @@ public class NacosContextRefresher
 							String configInfo) {
 						refreshCountIncrement();
 						nacosRefreshHistory.addRefreshRecord(dataId, group, configInfo);
-						// todo feature: support single refresh for listening
 						applicationContext.publishEvent(
 								new RefreshEvent(this, null, "Refresh Nacos config"));
 						if (log.isDebugEnabled()) {
@@ -141,6 +126,8 @@ public class NacosContextRefresher
 				});
 		try {
 			configService.addListener(dataKey, groupKey, listener);
+			log.info("[Nacos Config] Listening config: dataId={}, group={}", dataKey,
+					groupKey);
 		}
 		catch (NacosException e) {
 			log.warn(String.format(

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,13 +35,15 @@ public class ConsulDataSourceFactoryBean implements FactoryBean<ConsulDataSource
 
 	private String ruleKey;
 
+	private String token;
+
 	private int waitTimeoutInSecond;
 
 	private Converter converter;
 
 	@Override
 	public ConsulDataSource getObject() throws Exception {
-		return new ConsulDataSource(host, port, ruleKey, waitTimeoutInSecond, converter);
+		return new ConsulDataSource(host, port, token, ruleKey, waitTimeoutInSecond, converter);
 	}
 
 	@Override
@@ -89,4 +91,11 @@ public class ConsulDataSourceFactoryBean implements FactoryBean<ConsulDataSource
 		this.converter = converter;
 	}
 
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
 }

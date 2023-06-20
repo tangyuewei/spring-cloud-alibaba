@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public class PartitionMessageQueueSelector implements MessageQueueSelector {
 
 	@Override
 	public MessageQueue select(List<MessageQueue> mqs, Message msg, Object arg) {
-		Integer partition = 0;
+		int partition = 0;
 		try {
 			partition = Math.abs(
 					Integer.parseInt(msg.getProperty(BinderHeaders.PARTITION_HEADER)));

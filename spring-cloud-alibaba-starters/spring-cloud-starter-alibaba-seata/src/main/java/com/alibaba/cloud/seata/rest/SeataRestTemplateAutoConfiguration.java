@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,12 @@
 
 package com.alibaba.cloud.seata.rest;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
-import org.springframework.web.client.RestTemplate;
 
 /**
  * @author xiaojing
  */
-
 @Configuration(proxyBeanMethods = false)
 public class SeataRestTemplateAutoConfiguration {
 
@@ -40,22 +30,9 @@ public class SeataRestTemplateAutoConfiguration {
 		return new SeataRestTemplateInterceptor();
 	}
 
-	@Autowired(required = false)
-	private Collection<RestTemplate> restTemplates;
-
-	@Autowired
-	private SeataRestTemplateInterceptor seataRestTemplateInterceptor;
-
-	@PostConstruct
-	public void init() {
-		if (this.restTemplates != null) {
-			for (RestTemplate restTemplate : restTemplates) {
-				List<ClientHttpRequestInterceptor> interceptors = new ArrayList<ClientHttpRequestInterceptor>(
-						restTemplate.getInterceptors());
-				interceptors.add(this.seataRestTemplateInterceptor);
-				restTemplate.setInterceptors(interceptors);
-			}
-		}
+	@Bean
+	public SeataRestTemplateInterceptorAfterPropertiesSet seataRestTemplateInterceptorConfiguration() {
+		return new SeataRestTemplateInterceptorAfterPropertiesSet();
 	}
 
 }

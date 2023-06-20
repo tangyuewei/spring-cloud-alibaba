@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.alibaba.cloud.sentinel.datasource;
 
 import com.alibaba.cloud.sentinel.datasource.config.NacosDataSourceProperties;
 import com.alibaba.cloud.sentinel.datasource.factorybean.NacosDataSourceFactoryBean;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,11 +31,13 @@ public class NacosDataSourcePropertiesTests {
 	public void testNacosWithAddr() {
 		NacosDataSourceProperties nacosDataSourceProperties = new NacosDataSourceProperties();
 		nacosDataSourceProperties.setServerAddr("127.0.0.1:8848");
+		nacosDataSourceProperties.setContextPath("/my-nacos");
 		nacosDataSourceProperties.setRuleType(RuleType.FLOW);
 		nacosDataSourceProperties.setDataId("sentinel");
 		nacosDataSourceProperties.setGroupId("custom-group");
 		nacosDataSourceProperties.setDataType("xml");
 
+		assertThat(nacosDataSourceProperties.getContextPath()).isEqualTo("/my-nacos");
 		assertThat(nacosDataSourceProperties.getGroupId()).isEqualTo("custom-group");
 		assertThat(nacosDataSourceProperties.getDataId()).isEqualTo("sentinel");
 		assertThat(nacosDataSourceProperties.getDataType()).isEqualTo("xml");

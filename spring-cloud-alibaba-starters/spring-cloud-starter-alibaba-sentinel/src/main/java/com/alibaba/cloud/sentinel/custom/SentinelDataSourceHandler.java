@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ public class SentinelDataSourceHandler implements SmartInitializingSingleton {
 	private static final Logger log = LoggerFactory
 			.getLogger(SentinelDataSourceHandler.class);
 
-	private List<String> dataTypeList = Arrays.asList("json", "xml");
+	private final List<String> dataTypeList = Arrays.asList("json", "xml");
 
 	private final String DATA_TYPE_FIELD = "dataType";
 
@@ -100,11 +100,11 @@ public class SentinelDataSourceHandler implements SmartInitializingSingleton {
 				});
 	}
 
-	private void registerBean(final AbstractDataSourceProperties dataSourceProperties,
-			String dataSourceName) {
-
+	protected BeanDefinitionBuilder parseBeanDefinition(final AbstractDataSourceProperties dataSourceProperties,
+														String dataSourceName) {
 		Map<String, Object> propertyMap = Arrays
 				.stream(dataSourceProperties.getClass().getDeclaredFields())
+				.filter(field -> !field.isSynthetic())
 				.collect(HashMap::new, (m, v) -> {
 					try {
 						v.setAccessible(true);
@@ -135,8 +135,8 @@ public class SentinelDataSourceHandler implements SmartInitializingSingleton {
 				String dataType = StringUtils.trimAllWhitespace(propertyValue.toString());
 				if (CUSTOM_DATA_TYPE.equals(dataType)) {
 					try {
-						if (StringUtils
-								.isEmpty(dataSourceProperties.getConverterClass())) {
+						if (!StringUtils
+								.hasLength(dataSourceProperties.getConverterClass())) {
 							throw new RuntimeException("[Sentinel Starter] DataSource "
 									+ dataSourceName
 									+ "dataType is custom, please set converter-class "
@@ -186,15 +186,21 @@ public class SentinelDataSourceHandler implements SmartInitializingSingleton {
 									+ "-converter");
 				}
 			}
-			else if (CONVERTER_CLASS_FIELD.equals(propertyName)) {
-				return;
-			}
 			else {
-				// wired properties
-				Optional.ofNullable(propertyValue)
-						.ifPresent(v -> builder.addPropertyValue(propertyName, v));
+				if (!CONVERTER_CLASS_FIELD.equals(propertyName)) {
+					// wired properties
+					Optional.ofNullable(propertyValue)
+							.ifPresent(v -> builder.addPropertyValue(propertyName, v));
+				}
 			}
 		});
+
+		return builder;
+	}
+
+	private void registerBean(final AbstractDataSourceProperties dataSourceProperties,
+			String dataSourceName) {
+		BeanDefinitionBuilder builder = parseBeanDefinition(dataSourceProperties, dataSourceName);
 
 		this.beanFactory.registerBeanDefinition(dataSourceName,
 				builder.getBeanDefinition());

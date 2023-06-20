@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.springframework.cloud.client.ServiceInstance;
 
 /**
  * @author <a href="mailto:echooy.mxq@gmail.com">echooymxq</a>
+ * @author changjin wei(魏昌进)
  **/
 public class NacosServiceDiscovery {
 
@@ -92,6 +93,7 @@ public class NacosServiceDiscovery {
 		nacosServiceInstance.setHost(instance.getIp());
 		nacosServiceInstance.setPort(instance.getPort());
 		nacosServiceInstance.setServiceId(serviceId);
+		nacosServiceInstance.setInstanceId(instance.getInstanceId());
 
 		Map<String, String> metadata = new HashMap<>();
 		metadata.put("nacos.instanceId", instance.getInstanceId());
@@ -112,8 +114,7 @@ public class NacosServiceDiscovery {
 	}
 
 	private NamingService namingService() {
-		return nacosServiceManager
-				.getNamingService(discoveryProperties.getNacosProperties());
+		return nacosServiceManager.getNamingService();
 	}
 
 }

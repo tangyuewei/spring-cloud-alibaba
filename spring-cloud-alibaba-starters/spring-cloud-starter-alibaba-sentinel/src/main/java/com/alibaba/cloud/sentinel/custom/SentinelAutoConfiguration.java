@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package com.alibaba.cloud.sentinel.custom;
 
-import javax.annotation.PostConstruct;
 
+import com.alibaba.cloud.commons.lang.StringUtils;
 import com.alibaba.cloud.sentinel.SentinelProperties;
 import com.alibaba.cloud.sentinel.datasource.converter.JsonConverter;
 import com.alibaba.cloud.sentinel.datasource.converter.XmlConverter;
@@ -34,6 +34,7 @@ import com.alibaba.csp.sentinel.transport.config.TransportConfig;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import jakarta.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,7 +47,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.util.StringUtils;
 
 import static com.alibaba.cloud.sentinel.SentinelConstants.BLOCK_PAGE_URL_CONF_KEY;
 import static com.alibaba.csp.sentinel.config.SentinelConfig.setConfig;
@@ -55,6 +55,7 @@ import static com.alibaba.csp.sentinel.config.SentinelConfig.setConfig;
  * @author xiaojing
  * @author jiashuai.xie
  * @author <a href="mailto:fangjian0423@gmail.com">Jim</a>
+ * @author freeman
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnProperty(name = "spring.cloud.sentinel.enabled", matchIfMissing = true)
@@ -68,9 +69,9 @@ public class SentinelAutoConfiguration {
 	private SentinelProperties properties;
 
 	@PostConstruct
-	private void init() {
+	public void init() {
 		if (StringUtils.isEmpty(System.getProperty(LogBase.LOG_DIR))
-				&& StringUtils.hasText(properties.getLog().getDir())) {
+				&& StringUtils.isNotBlank(properties.getLog().getDir())) {
 			System.setProperty(LogBase.LOG_DIR, properties.getLog().getDir());
 		}
 		if (StringUtils.isEmpty(System.getProperty(LogBase.LOG_NAME_USE_PID))
@@ -79,53 +80,53 @@ public class SentinelAutoConfiguration {
 					String.valueOf(properties.getLog().isSwitchPid()));
 		}
 		if (StringUtils.isEmpty(System.getProperty(SentinelConfig.APP_NAME_PROP_KEY))
-				&& StringUtils.hasText(projectName)) {
+				&& StringUtils.isNotBlank(projectName)) {
 			System.setProperty(SentinelConfig.APP_NAME_PROP_KEY, projectName);
 		}
 		if (StringUtils.isEmpty(System.getProperty(TransportConfig.SERVER_PORT))
-				&& StringUtils.hasText(properties.getTransport().getPort())) {
+				&& StringUtils.isNotBlank(properties.getTransport().getPort())) {
 			System.setProperty(TransportConfig.SERVER_PORT,
 					properties.getTransport().getPort());
 		}
 		if (StringUtils.isEmpty(System.getProperty(TransportConfig.CONSOLE_SERVER))
-				&& StringUtils.hasText(properties.getTransport().getDashboard())) {
+				&& StringUtils.isNotBlank(properties.getTransport().getDashboard())) {
 			System.setProperty(TransportConfig.CONSOLE_SERVER,
 					properties.getTransport().getDashboard());
 		}
 		if (StringUtils.isEmpty(System.getProperty(TransportConfig.HEARTBEAT_INTERVAL_MS))
 				&& StringUtils
-						.hasText(properties.getTransport().getHeartbeatIntervalMs())) {
+						.isNotBlank(properties.getTransport().getHeartbeatIntervalMs())) {
 			System.setProperty(TransportConfig.HEARTBEAT_INTERVAL_MS,
 					properties.getTransport().getHeartbeatIntervalMs());
 		}
 		if (StringUtils.isEmpty(System.getProperty(TransportConfig.HEARTBEAT_CLIENT_IP))
-				&& StringUtils.hasText(properties.getTransport().getClientIp())) {
+				&& StringUtils.isNotBlank(properties.getTransport().getClientIp())) {
 			System.setProperty(TransportConfig.HEARTBEAT_CLIENT_IP,
 					properties.getTransport().getClientIp());
 		}
 		if (StringUtils.isEmpty(System.getProperty(SentinelConfig.CHARSET))
-				&& StringUtils.hasText(properties.getMetric().getCharset())) {
+				&& StringUtils.isNotBlank(properties.getMetric().getCharset())) {
 			System.setProperty(SentinelConfig.CHARSET,
 					properties.getMetric().getCharset());
 		}
 		if (StringUtils
 				.isEmpty(System.getProperty(SentinelConfig.SINGLE_METRIC_FILE_SIZE))
-				&& StringUtils.hasText(properties.getMetric().getFileSingleSize())) {
+				&& StringUtils.isNotBlank(properties.getMetric().getFileSingleSize())) {
 			System.setProperty(SentinelConfig.SINGLE_METRIC_FILE_SIZE,
 					properties.getMetric().getFileSingleSize());
 		}
 		if (StringUtils
 				.isEmpty(System.getProperty(SentinelConfig.TOTAL_METRIC_FILE_COUNT))
-				&& StringUtils.hasText(properties.getMetric().getFileTotalCount())) {
+				&& StringUtils.isNotBlank(properties.getMetric().getFileTotalCount())) {
 			System.setProperty(SentinelConfig.TOTAL_METRIC_FILE_COUNT,
 					properties.getMetric().getFileTotalCount());
 		}
 		if (StringUtils.isEmpty(System.getProperty(SentinelConfig.COLD_FACTOR))
-				&& StringUtils.hasText(properties.getFlow().getColdFactor())) {
+				&& StringUtils.isNotBlank(properties.getFlow().getColdFactor())) {
 			System.setProperty(SentinelConfig.COLD_FACTOR,
 					properties.getFlow().getColdFactor());
 		}
-		if (StringUtils.hasText(properties.getBlockPage())) {
+		if (StringUtils.isNotBlank(properties.getBlockPage())) {
 			setConfig(BLOCK_PAGE_URL_CONF_KEY, properties.getBlockPage());
 		}
 
@@ -147,7 +148,7 @@ public class SentinelAutoConfiguration {
 	@ConditionalOnClass(name = "org.springframework.web.client.RestTemplate")
 	@ConditionalOnProperty(name = "resttemplate.sentinel.enabled", havingValue = "true",
 			matchIfMissing = true)
-	public SentinelBeanPostProcessor sentinelBeanPostProcessor(
+	public static SentinelBeanPostProcessor sentinelBeanPostProcessor(
 			ApplicationContext applicationContext) {
 		return new SentinelBeanPostProcessor(applicationContext);
 	}

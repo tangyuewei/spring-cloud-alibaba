@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2019 the original author or authors.
+ * Copyright 2013-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,6 @@ package com.alibaba.cloud.circuitbreaker.sentinel;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -32,6 +30,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * @author Eric Zhao
+ * @author freeman
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(
@@ -40,28 +39,15 @@ import org.springframework.context.annotation.Configuration;
 		havingValue = "true", matchIfMissing = true)
 public class ReactiveSentinelCircuitBreakerAutoConfiguration {
 
+	@Autowired(required = false)
+	private List<Customizer<ReactiveSentinelCircuitBreakerFactory>> customizers = new ArrayList<>();
+
 	@Bean
 	@ConditionalOnMissingBean(ReactiveCircuitBreakerFactory.class)
 	public ReactiveCircuitBreakerFactory reactiveSentinelCircuitBreakerFactory() {
-		return new ReactiveSentinelCircuitBreakerFactory();
-	}
-
-	@Configuration(proxyBeanMethods = false)
-	@ConditionalOnClass(
-			name = { "reactor.core.publisher.Mono", "reactor.core.publisher.Flux" })
-	public static class ReactiveSentinelCustomizerConfiguration {
-
-		@Autowired(required = false)
-		private List<Customizer<ReactiveSentinelCircuitBreakerFactory>> customizers = new ArrayList<>();
-
-		@Autowired(required = false)
-		private ReactiveSentinelCircuitBreakerFactory factory;
-
-		@PostConstruct
-		public void init() {
-			customizers.forEach(customizer -> customizer.customize(factory));
-		}
-
+		ReactiveSentinelCircuitBreakerFactory factory = new ReactiveSentinelCircuitBreakerFactory();
+		customizers.forEach(customizer -> customizer.customize(factory));
+		return factory;
 	}
 
 }

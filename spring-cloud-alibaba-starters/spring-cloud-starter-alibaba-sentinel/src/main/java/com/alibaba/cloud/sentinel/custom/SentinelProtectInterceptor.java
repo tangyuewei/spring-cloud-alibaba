@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,11 +94,11 @@ public class SentinelProtectInterceptor implements ClientHttpRequestInterceptor 
 			}
 			else {
 				Tracer.traceEntry(e, hostEntry);
-				if (e instanceof IOException) {
-					throw (IOException) e;
+				if (e instanceof IOException ioException) {
+					throw ioException;
 				}
-				else if (e instanceof RuntimeException) {
-					throw (RuntimeException) e;
+				else if (e instanceof RuntimeException runtimeException) {
+					throw runtimeException;
 				}
 				else {
 					throw new IOException(e);

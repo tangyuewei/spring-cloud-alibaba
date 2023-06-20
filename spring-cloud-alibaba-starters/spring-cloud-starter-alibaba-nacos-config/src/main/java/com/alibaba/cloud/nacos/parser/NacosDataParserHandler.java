@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,10 +65,10 @@ public final class NacosDataParserHandler {
 	 */
 	public List<PropertySource<?>> parseNacosData(String configName, String configValue,
 			String extension) throws IOException {
-		if (StringUtils.isEmpty(configValue)) {
+		if (!StringUtils.hasLength(configValue)) {
 			return Collections.emptyList();
 		}
-		if (StringUtils.isEmpty(extension)) {
+		if (!StringUtils.hasLength(extension)) {
 			extension = this.getFileExtension(configName);
 		}
 		for (PropertySourceLoader propertySourceLoader : propertySourceLoaders) {
@@ -95,8 +95,8 @@ public final class NacosDataParserHandler {
 			}
 			return propertySourceList.stream().filter(Objects::nonNull)
 					.map(propertySource -> {
-						if (propertySource instanceof EnumerablePropertySource) {
-							String[] propertyNames = ((EnumerablePropertySource) propertySource)
+						if (propertySource instanceof EnumerablePropertySource enumerablePropertySource) {
+							String[] propertyNames = enumerablePropertySource
 									.getPropertyNames();
 							if (propertyNames != null && propertyNames.length > 0) {
 								Map<String, Object> map = new LinkedHashMap<>();
@@ -130,7 +130,7 @@ public final class NacosDataParserHandler {
 	 * @return file extension, default {@code DEFAULT_EXTENSION} if don't get
 	 */
 	public String getFileExtension(String name) {
-		if (StringUtils.isEmpty(name)) {
+		if (!StringUtils.hasLength(name)) {
 			return DEFAULT_EXTENSION;
 		}
 		int idx = name.lastIndexOf(DOT);
@@ -141,10 +141,10 @@ public final class NacosDataParserHandler {
 	}
 
 	private String getFileName(String name, String extension) {
-		if (StringUtils.isEmpty(extension)) {
+		if (!StringUtils.hasLength(extension)) {
 			return name;
 		}
-		if (StringUtils.isEmpty(name)) {
+		if (!StringUtils.hasLength(name)) {
 			return extension;
 		}
 		int idx = name.lastIndexOf(DOT);
