@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-dependencies-parent</artifactId>
-        <version>4.0.0</version>
+        <version>4.1.0</version>
         <relativePath/>
     </parent>
 
@@ -18,13 +18,22 @@
     <description>Spring Cloud Alibaba Dependencies</description>
 
     <properties>
-        <revision>2022.0.0.0</revision>
-        <sentinel.version>1.8.6</sentinel.version>
-        <seata.version>1.7.0</seata.version>
-        <nacos.client.version>2.2.1</nacos.client.version>
+        <revision>2023.0.1.2</revision>
+        <sentinel.version>1.8.8</sentinel.version>
+        <nacos.client.version>2.3.2</nacos.client.version>
+        <seata.version>2.0.0</seata.version>
         <spring.context.support.version>1.0.11</spring.context.support.version>
         <!-- Apache RocketMQ -->
-        <rocketmq.version>4.9.4</rocketmq.version>
+        <rocketmq.version>5.1.4</rocketmq.version>
+
+        <!-- Spring AI -->
+        <spring.ai.version>1.0.0-M1</spring.ai.version>
+        <dashscope-sdk-java.version>2.15.1</dashscope-sdk-java.version>
+
+        <!-- scheduling -->
+        <shedlock.version>4.23.0</shedlock.version>
+        <schedulerx.worker.version>1.11.4</schedulerx.worker.version>
+
         <!-- Maven Plugin Versions -->
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
         <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
@@ -40,6 +49,19 @@
                 <groupId>com.alibaba.nacos</groupId>
                 <artifactId>nacos-client</artifactId>
                 <version>${nacos.client.version}</version>
+            </dependency>
+
+            <!-- Spring AI & dashscope SDK-->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>dashscope-sdk-java</artifactId>
+                <version>${dashscope-sdk-java.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-core</artifactId>
+                <version>${spring.ai.version}</version>
             </dependency>
 
             <!-- Sentinel -->
@@ -145,7 +167,7 @@
 
             <dependency>
                 <groupId>com.alibaba.csp</groupId>
-                <artifactId>sentinel-spring-webmvc-6x-adapter</artifactId>
+                <artifactId>sentinel-spring-webmvc-v6x-adapter</artifactId>
                 <version>${sentinel.version}</version>
             </dependency>
 
@@ -165,6 +187,23 @@
                 <groupId>org.apache.rocketmq</groupId>
                 <artifactId>rocketmq-acl</artifactId>
                 <version>${rocketmq.version}</version>
+            </dependency>
+
+            <!-- Alibaba scheduling -->
+            <dependency>
+                <groupId>net.javacrumbs.shedlock</groupId>
+                <artifactId>shedlock-spring</artifactId>
+                <version>${shedlock.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.javacrumbs.shedlock</groupId>
+                <artifactId>shedlock-provider-jdbc-template</artifactId>
+                <version>${shedlock.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aliyun.schedulerx</groupId>
+                <artifactId>schedulerx2-worker</artifactId>
+                <version>${schedulerx.worker.version}</version>
             </dependency>
 
             <!-- Own dependencies  -->
@@ -195,6 +234,12 @@
             <dependency>
                 <groupId>com.alibaba.cloud</groupId>
                 <artifactId>spring-cloud-starter-alibaba-seata</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-starter-alibaba-ai</artifactId>
                 <version>${revision}</version>
             </dependency>
 
@@ -235,12 +280,25 @@
             </dependency>
 
             <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-starter-alibaba-schedulerx</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>com.alibaba.spring</groupId>
                 <artifactId>spring-context-support</artifactId>
                 <version>${spring.context.support.version}</version>
             </dependency>
 
             <!-- Testing Dependencies -->
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-test</artifactId>
+                <version>${spring.ai.version}</version>
+                <scope>test</scope>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

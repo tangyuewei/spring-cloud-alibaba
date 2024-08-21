@@ -30,7 +30,6 @@
         <module>seata-example/order-service</module>
         <module>seata-example/storage-service</module>
         <module>seata-example/account-service</module>
-        <module>seata-example/seata-server</module>
         <module>rocketmq-example/rocketmq-comprehensive-example</module>
         <module>rocketmq-example/rocketmq-orderly-consume-example</module>
         <module>rocketmq-example/rocketmq-broadcast-example/rocketmq-broadcast-producer-example</module>
@@ -41,7 +40,6 @@
         <module>rocketmq-example/rocketmq-example-common</module>
         <module>rocketmq-example/rocketmq-tx-example</module>
         <module>rocketmq-example/rocketmq-pollable-consume-example</module>
-
         <module>spring-cloud-bus-rocketmq-example</module>
         <module>spring-cloud-alibaba-sidecar-examples/spring-cloud-alibaba-sidecar-nacos-example</module>
         <module>spring-cloud-alibaba-sidecar-examples/spring-cloud-alibaba-sidecar-consul-example</module>
@@ -53,7 +51,11 @@
         <module>integrated-example/integrated-praise-consumer</module>
         <module>integrated-example/integrated-common</module>
 		<module>integrated-example/integrated-frontend</module>
-	</modules>
+        <module>ai-example/spring-cloud-ai-example</module>
+        <module>ai-example/spring-cloud-ai-rag-example</module>
+        <module>ai-example/spring-cloud-ai-chat-msg-context-example</module>
+        <module>spring-cloud-scheduling-example</module>
+    </modules>
 
 
     <build>
